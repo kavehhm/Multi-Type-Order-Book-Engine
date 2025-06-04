@@ -63,6 +63,8 @@ class Order {
         Quantity GetInitialQuantity() const { return initialQuantity_; }
         Quantity GetRemainingQuantity() const { return remainingQuantity_; }
         Quantity GetFilledQuantity() const { return initialQuantity_ - remainingQuantity_; }
+
+        bool IsFilled() const { return GetRemainingQuantity() == 0; }
         void Fill(Quantity quantity)
         {
             if (quantity > GetRemainingQuantity())
@@ -154,11 +156,130 @@ class OrderBook
             OrderPointer order_ { nullptr };
             OrderPointers::iterator location_;
         };
+
+        // mapping (asks_) a price (askprice) to a list of orders at the price (asks)
         std::map<Price, OrderPointers, std::greater<Price>> bids_;
         std::map<Price, OrderPointers, std::less<Price>> asks_;
         std::unordered_map<OrderId, OrderEntry> orders_; 
 
+
+        bool CanMatch(Side side, Price price) const{
+            // For fill or kill, we need the price to be greater than or equal to
+            // the best ask (lowest price sellers are selling at) to fill the whole
+            // order or kill it completely
+            if (side == Side::Buy) {
+                if (asks_.empty()) return false;
+
+                // map is sorted so the beginning ask will be the lowest one
+                const auto& bestAsk = asks_.begin()->first;
+
+                return price >= bestAsk;
+            }
+            // Same logic for selling, must look for highest price buyers are
+            // bidding at. this map is sorted in the opposite direction so
+            // the beginning element is the largest 
+            else {
+                if (bids_.empty()) return false;
+                const auto& bestBid = bids_.begin()->first;
+                return price <= bestBid;
+
+            }
+        }
+
+        Trades MatchOrders()
+        {
+            Trades trades;
+            trades.reserve(orders_.size());
+
+            while (true) {
+                if (bids_.empty() || asks_.empty()) break;
+                const auto& bidPrice = bids_.begin()->first;
+                auto& bids = bids_.begin()->second;
+
+                const auto& askPrice = asks_.begin()->first;
+                auto& asks = asks_.begin()->second;
+
+                if (bidPrice < askPrice) break;
+
+                // while buys and sells exist, match them
+                while (bids.size() && asks.size())
+                {
+                    // get highest bid and lowest ask
+                    auto& bid = bids.front();
+                    auto& ask = asks.front();
+
+                    // the lower amount takes prescedent. if we have less buyers, only
+                    // the amount of buyers will buy from sellers. same vice versa
+                    Quantity quantity = std::min(bid->GetRemainingQuantity(), ask->GetRemainingQuantity());
+                    bid->Fill(quantity);
+                    ask->Fill(quantity);
+
+                    // if the bid and or the ask are filled, remove the order and remove it from list of bids/asks
+                    if (bid->IsFilled())
+                    {
+                        bids.pop_front();
+                        orders_.erase(bid->GetOrderId());
+                    }
+
+                    if (ask->IsFilled())
+                    {
+                        asks.pop_front();
+                        orders_.erase(ask->GetOrderId());
+                    }
+
+                    // if there are no more orders at that price (bids_), remove the Key of the price as a whole from the map (bids)
+                    if (bids.empty()) bids_.erase(bidPrice);
+
+                    if (asks.empty()) asks_.erase(askPrice);
+
+                    trades.push_back(Trade{
+                        TradeInfo{bid->GetOrderId(), bid->GetPrice(), quantity}, 
+                        TradeInfo{ask->GetOrderId(), ask->GetPrice(), quantity}
+                        });
+
+                }
+
+            }
+
+
+            // Whatever order could not be filled and removed from the list of orders, is cancelled because of FOK
+
+            if (!bids_.empty())
+            {
+                const auto& bidPrice = bids_.begin()->first;
+                auto& bids = bids_.begin()->second;
+                
+                // top order at the top price
+                auto order = bids.front();
+
+                if (order->GetOrderType() == OrderType::FillAndKill)
+                    CancelOrder(order->GetOrderId());
+            }
+            
+            if (!asks_.empty())
+            {
+                const auto& askPrice = asks_.begin()->first;
+                auto& asks = asks_.begin()->second;
+                
+                // top order at the top price
+                auto order = asks.front();
+
+                if (order->GetOrderType() == OrderType::FillAndKill)
+                    CancelOrder(order->GetOrderId());
+            }
+
+            return trades;
+
         
+        }
+
+    public:
+        Trades AddOrder(OrderPointer order)
+        {
+            if (orders_.contains)
+        }
+
+
 };
 
 

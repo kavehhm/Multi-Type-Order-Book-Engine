@@ -279,7 +279,7 @@ class OrderBook
     public:
         Trades AddOrder(OrderPointer order)
         {
-            if (orders_.contains(order->GetOrderId()))
+            if (orders_.find(order->GetOrderId()) != orders_.end())
                 return { };
 
             if (order->GetOrderType() == OrderType::FillAndKill && !CanMatch(
@@ -290,20 +290,17 @@ class OrderBook
 
             if (order->GetSide() == Side::Buy)
             {
-                // get all the bid orders at the current order's price
-                auto orders = bids_[order->GetPrice()];
+                // get reference to the list of orders at this price
+                auto& orders = bids_[order->GetPrice()];
                 orders.push_back(order);
-                iterator = std::next(orders.begin(), orders.size()-1);
-
+                iterator = std::prev(orders.end());
             }
-
-            if (order->GetSide() == Side::Sell)
+            else if (order->GetSide() == Side::Sell)
             {
-                // get all the bid orders at the current order's price
-                auto orders = asks_[order->GetPrice()];
+                // get reference to the list of orders at this price
+                auto& orders = asks_[order->GetPrice()];
                 orders.push_back(order);
-                iterator = std::next(orders.begin(), orders.size()-1);
-
+                iterator = std::prev(orders.end());
             }
 
             orders_.insert({order->GetOrderId(), OrderEntry{order, iterator}});
@@ -311,15 +308,13 @@ class OrderBook
         }
 
         void CancelOrder(OrderId orderId) {
-            if (!orders_.contains(orderId))
+            auto it = orders_.find(orderId);
+            if (it == orders_.end())
                 return;
 
-            const auto& orderEntry = orders_.at(orderId);
+            const auto& orderEntry = it->second;
             const auto& order = orderEntry.order_;
             const auto& orderIterator = orderEntry.location_;
-
-            
-            orders_.erase(orderId);
 
             if (order->GetSide() == Side::Sell)
             {
@@ -336,6 +331,8 @@ class OrderBook
                 if (orders.empty())
                     bids_.erase(price);
             }
+            
+            orders_.erase(it);
         }
 
         Trades Match(OrderModify order)
@@ -385,11 +382,17 @@ int main()
 {
     OrderBook orderbook;
     const OrderId orderId = 1;
+    const OrderId orderId2 = 2;
     orderbook.AddOrder(std::make_shared<Order>(OrderType::GoodTillCancel, orderId, Side::Buy, 100, 10));
+    orderbook.AddOrder(std::make_shared<Order>(OrderType::GoodTillCancel, orderId2, Side::Buy, 100, 10));
 
     std::cout << orderbook.Size() << std::endl;
     orderbook.CancelOrder(orderId);
     std::cout << orderbook.Size() << std::endl;
+    orderbook.CancelOrder(orderId2);
+    std::cout << orderbook.Size() << std::endl;
+
+
 
 
     return 0;

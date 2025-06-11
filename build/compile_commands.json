@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build",
+  "command": "/usr/bin/clang++   -g -std=gnu++20 -arch arm64 -o CMakeFiles/order_book_engine.dir/main.cpp.o -c /Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/main.cpp",
+  "file": "/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/main.cpp",
+  "output": "CMakeFiles/order_book_engine.dir/main.cpp.o"
+},
+{
+  "directory": "/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build",
+  "command": "/usr/bin/clang++   -g -std=gnu++20 -arch arm64 -o CMakeFiles/order_book_engine.dir/order_book.cpp.o -c /Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/order_book.cpp",
+  "file": "/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/order_book.cpp",
+  "output": "CMakeFiles/order_book_engine.dir/order_book.cpp.o"
+}
+]

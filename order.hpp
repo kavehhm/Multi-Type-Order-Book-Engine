@@ -1,9 +1,11 @@
 #pragma once
 #include "types.hpp"
+#include "Constants.h"
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <list>
+
 
 // Represents a single order in the order book
 class Order {
@@ -11,6 +13,11 @@ class Order {
         Order(OrderType orderType, OrderId orderId, Side side, Price price, Quantity quantity)
         : orderType_{orderType}, orderId_{orderId}, side_{side}, price_{price}, initialQuantity_{quantity}, remainingQuantity_{quantity}
         { }
+
+        // Overload the order, that does not take a price. This is for market orders where price does not matter
+        Order (OrderId orderId, Side side, Quantity quantity)
+        : Order(OrderType::Market, orderId, side, Constants::InvalidPrice, quantity)
+        {}
         OrderId GetOrderId() const { return orderId_; }
         Side GetSide() const { return side_; }
         Price GetPrice() const { return price_; }
@@ -27,6 +34,16 @@ class Order {
                 throw std::logic_error("Cannot fill more than the remaining quantity for order " + std::to_string(GetOrderId()));
             }
             remainingQuantity_ -= quantity;
+        }
+
+
+        void ToGoodTillCancel(Price price) 
+        { 
+            if (GetOrderType() != OrderType::Market)
+                throw std::logic_error(("Only market orders can have price adjusted. Not order " +  std::to_string(GetOrderId())));
+
+            price_ = price;
+            orderType_ = OrderType::GoodTillCancel;
         }
 
     private:

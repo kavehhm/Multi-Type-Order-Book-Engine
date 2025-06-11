@@ -3,7 +3,10 @@
 #include "order.hpp"
 #include "order_modify.hpp"
 #include "trade.hpp"
+#include <condition_variable>
 #include <map>
+#include <mutex>
+#include <thread>
 #include <unordered_map>
 #include <numeric>
 
@@ -25,6 +28,15 @@ class OrderBook
         // Quick lookup of orders by their ID
         std::unordered_map<OrderId, OrderEntry> orders_; 
 
+        mutable std::mutex ordersMutex_;
+        std::thread ordersPruneThread_;
+        std::condition_variable shutdownConditionVariable_;
+        std::atomic<bool> shutdown_ {false};
+
+        void PruneGoodForDayOrder();
+
+        void CancelOrders(OrderIds orderIds);
+        void CancelOrderInternal(OrderId orderId);
         // Check if an order can be matched at the given price
         bool CanMatch(Side side, Price price) const;
         // Match orders and generate trades

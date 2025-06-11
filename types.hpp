@@ -8,7 +8,7 @@ enum class OrderType {
     FillAndKill,     // Order must be filled immediately or cancelled
     FillOrKill, // If not filled, cancel it
     GoodForDay, // If not filled by end of day, cancel it
-    Market, // Match the current best price / offer
+    Market, // Give me whatever price I can, I just want to be filled
 };
 
 // Side of the order (Buy/Sell)
@@ -22,6 +22,7 @@ enum class Side {
 using Price = std::int32_t;
 using Quantity = std::uint32_t;
 using OrderId = std::uint64_t;
+using OrderIds = std::vector<OrderId>;
 
 // Represents a price level in the order book with its total quantity
 struct LevelInfo 

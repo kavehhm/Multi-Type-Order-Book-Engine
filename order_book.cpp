@@ -102,16 +102,20 @@ void OrderBook::CancelOrderInternal(OrderId orderId) {
 
 
 void OrderBook::OnOrderCancelled(OrderPointer order) {
-    UpdateLevelData(order->GetPrice(), order->GetInitialQuantity(), LevelData::Action::Remove);
+    // When an order is cancelled, we need to remove exactly what's still in the order book. 
+    // The remaining quantity represents the unfilled portion of the order that is still active in the book
+    // We can only cancel whats remaining from the order. cant cancel what was already filled
+    UpdateLevelData(order->GetPrice(), order->GetRemainingQuantity(), LevelData::Action::Remove);
 }
 
 void OrderBook::OnOrderAdded(OrderPointer order) {
     UpdateLevelData(order->GetPrice(), order->GetInitialQuantity(), LevelData::Action::Add);
-
 }
 
 
 void OrderBook::OnOrderMatched(Price price, Quantity quantity, bool isFullyFilled) {
+    // If the order was fully filled then we remove that count from our structure
+    // Otherwise we dont touch the count property
     UpdateLevelData(price, quantity, isFullyFilled ? LevelData::Action::Remove : LevelData::Action::Match);
 
 }
@@ -119,27 +123,33 @@ void OrderBook::OnOrderMatched(Price price, Quantity quantity, bool isFullyFille
 void OrderBook::UpdateLevelData(Price price, Quantity quantity, LevelData::Action action) {
     auto& data = data_[price];
     
+    // If the action is to remove from our books, we reduce the number of orders on the book. same logic for add
     if (action == LevelData::Action::Remove) {
         data.count_ -= 1;
     } else if (action == LevelData::Action::Add) {
         data.count_ += 1;
     }
 
+    // If we removed or matched, reduce the quantity by the amount we removed or matched by
     if (action == LevelData::Action::Remove || action == LevelData::Action::Match) {
         data.quantity_ -= quantity;
     }
+    // Same logic for add
     else {
         data.quantity_ += quantity;
     }
 
+    // If there's no data at that price, remove it
     if (data.count_ == 0)
         data_.erase(price);
 }
 
 bool OrderBook::CanFullyFill(Side side, Price price, Quantity quantity) const {
+    // If we can match, then when we call asks or bid . begin() we know that won't be undefined behavior
     if (!CanMatch(side, price))
         return false;
 
+    // The best price we can get for FOK
     std::optional<Price> threshold;
 
     if (side== Side::Buy) {
@@ -152,22 +162,30 @@ bool OrderBook::CanFullyFill(Side side, Price price, Quantity quantity) const {
         threshold = bidPrice;
     }
 
+    // Lets say the worst ask is at 110 and the best ask is at 90. The FOK order would be 
+    // somewhere in between (100). We need to find how many orders exist between best ask and FOK price
     for (const auto& [levelPrice, levelData]: data_) {
+        // Filtering for at or below FOK price. We are filtering out the ones that we don't need for readability
         if (threshold.has_value() && 
             (side == Side::Buy && threshold.value() > levelPrice) ||
             (side == Side::Sell && threshold.value() < levelPrice))
             continue;
         
+
         if ((side == Side::Buy && levelPrice > price) ||
             (side == Side::Sell && levelPrice < price))
                 continue;
 
+        // If quantity gets to a number that is less than the quantity we want to match at, then we know we can fully fill
+        
         if (quantity <= levelData.quantity_)
             return true;
 
+        // If we have a desired price, subtract our quantity from the quantity at that level
         quantity -= levelData.quantity_;
 
     }
+
 
     return false;
     
@@ -225,6 +243,11 @@ Trades OrderBook::MatchOrders() {
                 TradeInfo{bid->GetOrderId(), bid->GetPrice(), quantity}, 
                 TradeInfo{ask->GetOrderId(), ask->GetPrice(), quantity}
             });
+
+             // Removes one order from the bid price
+            OnOrderMatched(bid->GetPrice(), quantity, bid->IsFilled());
+            // Removes one order from the ask price
+            OnOrderMatched(ask->GetPrice(), quantity, ask->IsFilled());
         }
     }
 
@@ -268,6 +291,11 @@ Trades OrderBook::AddOrder(OrderPointer order) {
     if (order->GetOrderType() == OrderType::FillAndKill && !CanMatch(
         order->GetSide(), order->GetPrice()))
         return { };
+
+    // If the order is FOK and we can't fully fill, we do nothing
+    if (order->GetOrderType() == OrderType::FillOrKill && !CanFullyFill(order->GetSide(), order->GetPrice(), order->GetInitialQuantity()))
+        return {};
+    // Otherwise, we fill the order using any other logic we have used
 
     OrderPointers::iterator iterator;
 

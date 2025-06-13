@@ -95,8 +95,82 @@ void OrderBook::CancelOrderInternal(OrderId orderId) {
             bids_.erase(price);
     }
 
-    // OnOrderCancelledOrder(order)
+    OnOrderCancelled(order);
 
+}
+
+
+
+void OrderBook::OnOrderCancelled(OrderPointer order) {
+    UpdateLevelData(order->GetPrice(), order->GetInitialQuantity(), LevelData::Action::Remove);
+}
+
+void OrderBook::OnOrderAdded(OrderPointer order) {
+    UpdateLevelData(order->GetPrice(), order->GetInitialQuantity(), LevelData::Action::Add);
+
+}
+
+
+void OrderBook::OnOrderMatched(Price price, Quantity quantity, bool isFullyFilled) {
+    UpdateLevelData(price, quantity, isFullyFilled ? LevelData::Action::Remove : LevelData::Action::Match);
+
+}
+
+void OrderBook::UpdateLevelData(Price price, Quantity quantity, LevelData::Action action) {
+    auto& data = data_[price];
+    
+    if (action == LevelData::Action::Remove) {
+        data.count_ -= 1;
+    } else if (action == LevelData::Action::Add) {
+        data.count_ += 1;
+    }
+
+    if (action == LevelData::Action::Remove || action == LevelData::Action::Match) {
+        data.quantity_ -= quantity;
+    }
+    else {
+        data.quantity_ += quantity;
+    }
+
+    if (data.count_ == 0)
+        data_.erase(price);
+}
+
+bool OrderBook::CanFullyFill(Side side, Price price, Quantity quantity) const {
+    if (!CanMatch(side, price))
+        return false;
+
+    std::optional<Price> threshold;
+
+    if (side== Side::Buy) {
+        const auto [askPrice, _] = *asks_.begin();
+        threshold = askPrice;
+    }
+
+    else {
+        const auto [bidPrice, _] = *bids_.begin();
+        threshold = bidPrice;
+    }
+
+    for (const auto& [levelPrice, levelData]: data_) {
+        if (threshold.has_value() && 
+            (side == Side::Buy && threshold.value() > levelPrice) ||
+            (side == Side::Sell && threshold.value() < levelPrice))
+            continue;
+        
+        if ((side == Side::Buy && levelPrice > price) ||
+            (side == Side::Sell && levelPrice < price))
+                continue;
+
+        if (quantity <= levelData.quantity_)
+            return true;
+
+        quantity -= levelData.quantity_;
+
+    }
+
+    return false;
+    
 }
 
 bool OrderBook::CanMatch(Side side, Price price) const {
@@ -209,6 +283,8 @@ Trades OrderBook::AddOrder(OrderPointer order) {
     }
 
     orders_.insert({order->GetOrderId(), OrderEntry{order, iterator}});
+
+    OnOrderAdded(order);
     return MatchOrders();
 }
 

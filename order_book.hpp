@@ -20,6 +20,20 @@ class OrderBook
             OrderPointers::iterator location_;
         };
 
+        struct LevelData {
+            Quantity quantity_{};
+            Quantity count_{};
+
+            // How our metadata can be impacted
+            enum class Action {
+                Add,
+                Remove,
+                Match
+            };
+        };
+        // Metadata
+        std::unordered_map<Price, LevelData> data_;
+
         // Price-time priority order book implementation
         // Bids are sorted in descending order (highest price first)
         std::map<Price, OrderPointers, std::greater<Price>> bids_;
@@ -37,6 +51,13 @@ class OrderBook
 
         void CancelOrders(OrderIds orderIds);
         void CancelOrderInternal(OrderId orderId);
+
+        // Making our lives easier with event based API's
+        void OnOrderCancelled(OrderPointer order);
+        void OnOrderAdded(OrderPointer order);
+        void OnOrderMatched(Price price, Quantity quantity, bool isFullyFilled);
+        void UpdateLevelData(Price price, Quantity quantity, LevelData::Action action);
+        bool CanFullyFill(Side side, Price price, Quantity quantity) const;
         // Check if an order can be matched at the given price
         bool CanMatch(Side side, Price price) const;
         // Match orders and generate trades

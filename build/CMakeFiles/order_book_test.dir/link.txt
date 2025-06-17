@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/order_book_test.dir/order_book_test.cpp.o CMakeFiles/order_book_test.dir/order_book.cpp.o -o order_book_test  -lpthread /opt/homebrew/lib/libgtest_main.a /opt/homebrew/lib/libgtest.a

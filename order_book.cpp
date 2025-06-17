@@ -6,6 +6,7 @@
 #include <ctime>
 #include <mutex>
 #include <numeric>
+#include <iostream>
 
 
 
@@ -72,7 +73,7 @@ void OrderBook::CancelOrders(OrderIds orderIds) {
 // this version is to ensure thread safety
 void OrderBook::CancelOrderInternal(OrderId orderId) {
     // if the orderid does not even exist we dont run anything
-    if (!orders_.contains(orderId))
+    if (orders_.find(orderId) == orders_.end())
         return;
 
     const auto [order, iterator] = orders_.at(orderId);
@@ -167,12 +168,12 @@ bool OrderBook::CanFullyFill(Side side, Price price, Quantity quantity) const {
     for (const auto& [levelPrice, levelData]: data_) {
         // Filtering for at or below FOK price. We are filtering out the ones that we don't need for readability
         if (threshold.has_value() && 
-            (side == Side::Buy && threshold.value() > levelPrice) ||
+            (side == Side::Buy && threshold.value() > levelPrice) || // threshold 100 and level price is 105. thats false. if the price is more than our threshold we just skip this whole level price
             (side == Side::Sell && threshold.value() < levelPrice))
             continue;
         
 
-        if ((side == Side::Buy && levelPrice > price) ||
+        if ((side == Side::Buy && levelPrice > price) || // if the level price is more than the price we're willing to pay, go to next level price.
             (side == Side::Sell && levelPrice < price))
                 continue;
 
@@ -209,61 +210,75 @@ Trades OrderBook::MatchOrders() {
     trades.reserve(orders_.size());
 
     while (true) {
-        if (bids_.empty() || asks_.empty()) break;
+        if (bids_.empty() || asks_.empty()) {
+            break;
+        }
+        
         const auto& bidPrice = bids_.begin()->first;
         auto& bids = bids_.begin()->second;
 
         const auto& askPrice = asks_.begin()->first;
         auto& asks = asks_.begin()->second;
 
-        if (bidPrice < askPrice) break;
+        if (bidPrice < askPrice) {
+            break;
+        }
 
         while (bids.size() && asks.size()) {
-            auto& bid = bids.front();
-            auto& ask = asks.front();
+            auto bid = bids.front();
+            auto ask = asks.front();
 
             Quantity quantity = std::min(bid->GetRemainingQuantity(), ask->GetRemainingQuantity());
+
             bid->Fill(quantity);
             ask->Fill(quantity);
-
-            if (bid->IsFilled()) {
-                bids.pop_front();
-                orders_.erase(bid->GetOrderId());
-            }
-
-            if (ask->IsFilled()) {
-                asks.pop_front();
-                orders_.erase(ask->GetOrderId());
-            }
-
-            if (bids.empty()) bids_.erase(bidPrice);
-            if (asks.empty()) asks_.erase(askPrice);
 
             trades.push_back(Trade{
                 TradeInfo{bid->GetOrderId(), bid->GetPrice(), quantity}, 
                 TradeInfo{ask->GetOrderId(), ask->GetPrice(), quantity}
             });
 
-             // Removes one order from the bid price
-            OnOrderMatched(bid->GetPrice(), quantity, bid->IsFilled());
-            // Removes one order from the ask price
-            OnOrderMatched(ask->GetPrice(), quantity, ask->IsFilled());
+            // Store order IDs before modifying containers
+            auto bidId = bid->GetOrderId();
+            auto askId = ask->GetOrderId();
+            auto bidPriceCopy = bid->GetPrice();
+            auto askPriceCopy = ask->GetPrice();
+            bool bidFilled = bid->IsFilled();
+            bool askFilled = ask->IsFilled();
+
+            if (bidFilled) {
+                bids.pop_front();
+                orders_.erase(bidId);
+            }
+
+            if (askFilled) {
+                asks.pop_front();
+                orders_.erase(askId);
+            }
+
+            if (bids.empty()) bids_.erase(bidPrice);
+            if (asks.empty()) asks_.erase(askPrice);
+
+            OnOrderMatched(bidPriceCopy, quantity, bidFilled);
+            OnOrderMatched(askPriceCopy, quantity, askFilled);
         }
     }
 
     if (!bids_.empty()) {
         const auto& bidPrice = bids_.begin()->first;
         auto& bids = bids_.begin()->second;
+
         auto order = bids.front();
-        if (order->GetOrderType() == OrderType::FillAndKill)
+        if (order && order->GetOrderType() == OrderType::FillAndKill)
             CancelOrder(order->GetOrderId());
     }
     
     if (!asks_.empty()) {
         const auto& askPrice = asks_.begin()->first;
         auto& asks = asks_.begin()->second;
+
         auto order = asks.front();
-        if (order->GetOrderType() == OrderType::FillAndKill)
+        if (order && order->GetOrderType() == OrderType::FillAndKill)
             CancelOrder(order->GetOrderId());
     }
 

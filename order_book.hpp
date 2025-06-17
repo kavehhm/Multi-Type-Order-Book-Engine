@@ -57,9 +57,6 @@ class OrderBook
         void OnOrderAdded(OrderPointer order);
         void OnOrderMatched(Price price, Quantity quantity, bool isFullyFilled);
         void UpdateLevelData(Price price, Quantity quantity, LevelData::Action action);
-        // Difference between CanMatch and CanFullyFill:
-        // CanMatch answers if the orderbook can allow a trade and we call that in CanFullyFill
-        bool CanFullyFill(Side side, Price price, Quantity quantity) const;
         // Check if an order can be matched at the given price
         bool CanMatch(Side side, Price price) const;
         // Match orders and generate trades
@@ -76,4 +73,7 @@ class OrderBook
         std::size_t Size() const;
         // Get the current state of the order book
         OrderBookLevelInfos GetOrderInfos() const;
+        // Difference between CanMatch and CanFullyFill:
+        // CanMatch answers if the orderbook can allow a trade and we call that in CanFullyFill
+        bool CanFullyFill(Side side, Price price, Quantity quantity) const;
 }; 

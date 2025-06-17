@@ -92,6 +92,13 @@ all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles 0
 .PHONY : all
 
+# The main codegen target
+codegen: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles /Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build//CMakeFiles/progress.marks
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 codegen
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles 0
+.PHONY : codegen
+
 # The main clean target
 clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean
@@ -129,6 +136,86 @@ order_book_engine/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/build
 .PHONY : order_book_engine/fast
 
+#=============================================================================
+# Target rules for targets named order_book_server
+
+# Build rule for target.
+order_book_server: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 order_book_server
+.PHONY : order_book_server
+
+# fast build rule for target.
+order_book_server/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/build
+.PHONY : order_book_server/fast
+
+#=============================================================================
+# Target rules for targets named order_book_test
+
+# Build rule for target.
+order_book_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 order_book_test
+.PHONY : order_book_test
+
+# fast build rule for target.
+order_book_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/build
+.PHONY : order_book_test/fast
+
+generated/orderbook.grpc.pb.o: generated/orderbook.grpc.pb.cc.o
+.PHONY : generated/orderbook.grpc.pb.o
+
+# target to build an object file
+generated/orderbook.grpc.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/generated/orderbook.grpc.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/generated/orderbook.grpc.pb.cc.o
+.PHONY : generated/orderbook.grpc.pb.cc.o
+
+generated/orderbook.grpc.pb.i: generated/orderbook.grpc.pb.cc.i
+.PHONY : generated/orderbook.grpc.pb.i
+
+# target to preprocess a source file
+generated/orderbook.grpc.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/generated/orderbook.grpc.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/generated/orderbook.grpc.pb.cc.i
+.PHONY : generated/orderbook.grpc.pb.cc.i
+
+generated/orderbook.grpc.pb.s: generated/orderbook.grpc.pb.cc.s
+.PHONY : generated/orderbook.grpc.pb.s
+
+# target to generate assembly for a file
+generated/orderbook.grpc.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/generated/orderbook.grpc.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/generated/orderbook.grpc.pb.cc.s
+.PHONY : generated/orderbook.grpc.pb.cc.s
+
+generated/orderbook.pb.o: generated/orderbook.pb.cc.o
+.PHONY : generated/orderbook.pb.o
+
+# target to build an object file
+generated/orderbook.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/generated/orderbook.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/generated/orderbook.pb.cc.o
+.PHONY : generated/orderbook.pb.cc.o
+
+generated/orderbook.pb.i: generated/orderbook.pb.cc.i
+.PHONY : generated/orderbook.pb.i
+
+# target to preprocess a source file
+generated/orderbook.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/generated/orderbook.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/generated/orderbook.pb.cc.i
+.PHONY : generated/orderbook.pb.cc.i
+
+generated/orderbook.pb.s: generated/orderbook.pb.cc.s
+.PHONY : generated/orderbook.pb.s
+
+# target to generate assembly for a file
+generated/orderbook.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/generated/orderbook.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/generated/orderbook.pb.cc.s
+.PHONY : generated/orderbook.pb.cc.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -159,6 +246,8 @@ order_book.o: order_book.cpp.o
 # target to build an object file
 order_book.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/order_book.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/order_book.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/order_book.cpp.o
 .PHONY : order_book.cpp.o
 
 order_book.i: order_book.cpp.i
@@ -167,6 +256,8 @@ order_book.i: order_book.cpp.i
 # target to preprocess a source file
 order_book.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/order_book.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/order_book.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/order_book.cpp.i
 .PHONY : order_book.cpp.i
 
 order_book.s: order_book.cpp.s
@@ -175,7 +266,57 @@ order_book.s: order_book.cpp.s
 # target to generate assembly for a file
 order_book.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_engine.dir/build.make CMakeFiles/order_book_engine.dir/order_book.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/order_book.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/order_book.cpp.s
 .PHONY : order_book.cpp.s
+
+order_book_test.o: order_book_test.cpp.o
+.PHONY : order_book_test.o
+
+# target to build an object file
+order_book_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/order_book_test.cpp.o
+.PHONY : order_book_test.cpp.o
+
+order_book_test.i: order_book_test.cpp.i
+.PHONY : order_book_test.i
+
+# target to preprocess a source file
+order_book_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/order_book_test.cpp.i
+.PHONY : order_book_test.cpp.i
+
+order_book_test.s: order_book_test.cpp.s
+.PHONY : order_book_test.s
+
+# target to generate assembly for a file
+order_book_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_test.dir/build.make CMakeFiles/order_book_test.dir/order_book_test.cpp.s
+.PHONY : order_book_test.cpp.s
+
+server.o: server.cpp.o
+.PHONY : server.o
+
+# target to build an object file
+server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/server.cpp.o
+.PHONY : server.cpp.o
+
+server.i: server.cpp.i
+.PHONY : server.i
+
+# target to preprocess a source file
+server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/server.cpp.i
+.PHONY : server.cpp.i
+
+server.s: server.cpp.s
+.PHONY : server.s
+
+# target to generate assembly for a file
+server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/order_book_server.dir/build.make CMakeFiles/order_book_server.dir/server.cpp.s
+.PHONY : server.cpp.s
 
 # Help Target
 help:
@@ -183,15 +324,30 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... codegen"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... order_book_engine"
+	@echo "... order_book_server"
+	@echo "... order_book_test"
+	@echo "... generated/orderbook.grpc.pb.o"
+	@echo "... generated/orderbook.grpc.pb.i"
+	@echo "... generated/orderbook.grpc.pb.s"
+	@echo "... generated/orderbook.pb.o"
+	@echo "... generated/orderbook.pb.i"
+	@echo "... generated/orderbook.pb.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
 	@echo "... order_book.o"
 	@echo "... order_book.i"
 	@echo "... order_book.s"
+	@echo "... order_book_test.o"
+	@echo "... order_book_test.i"
+	@echo "... order_book_test.s"
+	@echo "... server.o"
+	@echo "... server.i"
+	@echo "... server.s"
 .PHONY : help
 
 

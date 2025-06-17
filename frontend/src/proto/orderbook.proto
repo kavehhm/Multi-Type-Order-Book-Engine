@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package orderbook;
+
+service OrderBookService {
+  rpc AddOrder(AddOrderRequest) returns (OrderResponse);
+  rpc CancelOrder(CancelOrderRequest) returns (OrderResponse);
+  rpc GetOrderBook(GetOrderBookRequest) returns (OrderBookResponse);
+}
+
+message AddOrderRequest {
+  int32 order_id = 1;
+  string side = 2;
+  double price = 3;
+  int32 quantity = 4;
+  string order_type = 5;
+}
+
+message CancelOrderRequest {
+  int32 order_id = 1;
+}
+
+message GetOrderBookRequest {}
+
+message OrderResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message OrderBookResponse {
+  repeated PriceLevel bids = 1;
+  repeated PriceLevel asks = 2;
+}
+
+message PriceLevel {
+  double price = 1;
+  int32 quantity = 2;
+} 

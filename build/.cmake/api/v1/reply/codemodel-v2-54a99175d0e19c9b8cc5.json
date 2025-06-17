@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "4.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "OrderBookEngine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "order_book_engine::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-order_book_engine-a1dff9de5189a0c66413.json",
+					"name" : "order_book_engine",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "order_book_server::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-order_book_server-e5fc0117cfe510802006.json",
+					"name" : "order_book_server",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "order_book_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-order_book_test-3dd2f72a1f4577cffc98.json",
+					"name" : "order_book_test",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build",
+		"source" : "/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

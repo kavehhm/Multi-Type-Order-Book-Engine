@@ -1,5 +1,0 @@
-/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles/order_book_engine.dir
-/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles/order_book_server.dir
-/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles/order_book_test.dir
-/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles/edit_cache.dir
-/Users/kavehmalekzadeh/Documents/QuantProj/Multi-Type-Order-Book-Engine/build/CMakeFiles/rebuild_cache.dir
